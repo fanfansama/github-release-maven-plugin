@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true">
+
+
+	<turboFilter class="ch.qos.logback.classic.turbo.MDCFilter">
+		<MDCKey>Debug</MDCKey>
+		<Value>true</Value>
+		<OnMatch>ACCEPT</OnMatch>
+	</turboFilter>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger - %X{Profile} %X{Correlation-ID} - %msg%n</pattern>
+		</layout>
+	</appender>
+
+
+    <logger name="com.stepinfo" 				level="INFO"/>
+    <logger name="org.kohsuke"        			level="WARN"/>
+
+
+
+	<root level="WARN">
+		<appender-ref ref="STDOUT" />
+       <!-- <appender-ref ref="log-file" />
+        <appender-ref ref="troubleshooting-file" />  -->
+	</root>
+
+</configuration>
