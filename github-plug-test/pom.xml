@@ -30,7 +30,7 @@
                 <artifactId>github-release-maven-plugin</artifactId>
                 <version>1.0-SNAPSHOT</version>
                 <configuration>
-                    <tag>C</tag>
+                    <tag>S01</tag>
                     <wiki>MW</wiki>  <!-- MW : mediawiki, MD : markdown  -->
                     <changelog>true</changelog>   <!-- generer le changelog -->
                     <user>fanfansama</user>
