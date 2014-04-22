@@ -194,8 +194,9 @@ public class BranchHelper {
 
             if (current != null && current != lastTags) {
                 loggerCommitRelease(buf, current);
-                lastTags = current;
                 releaseMapBuffer.put(lastTags, buf);
+                lastTags = current;
+
                 buf = new StringBuilder(SAUT_DE_LIGNE);
                 if (!MASTER.equals(branchName)) {       // FIXME : detecter le master
                     break;
