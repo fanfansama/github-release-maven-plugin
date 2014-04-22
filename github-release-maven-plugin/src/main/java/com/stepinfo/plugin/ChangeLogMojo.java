@@ -30,7 +30,7 @@ public class ChangeLogMojo extends AbstractConnect
 
 
     @Parameter(defaultValue = "REL-")
-    private String releaseSuffix;
+    private String branchSuffix;
 
 
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -40,8 +40,8 @@ public class ChangeLogMojo extends AbstractConnect
             getLog().info("Checking existing branch...");
             Map<String, GHBranch> branches = repo.getBranches();
 
-                getLog().info("processing... changelog");
-                processBranches(repo, branches.values(), releaseSuffix, wiki);
+            getLog().info("processing... changelog");
+            processBranches(repo, branches.values(), branchSuffix, wiki);
             getLog().info("generated !!");
 
         } catch (IOException ioe) {

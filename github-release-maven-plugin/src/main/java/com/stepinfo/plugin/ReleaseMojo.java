@@ -31,7 +31,7 @@ public class ReleaseMojo extends AbstractConnect {
     private String tag;
 
     @Parameter(defaultValue = "REL-")
-    private String releaseSuffix;
+    private String branchSuffix;
 
     @Parameter(defaultValue = "")
     private String repository;
@@ -51,22 +51,25 @@ public class ReleaseMojo extends AbstractConnect {
     @Parameter(defaultValue = "HEAD")
     private String sha;
 
+    @Parameter(defaultValue = "true")
+    private String branch;
+
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
 
             GHRepository repo = invoke(user, password, repository);
-            String releaseName = releaseSuffix + tag;
+            String releaseName = tag;
 
             getLog().info("Checking existing branch...");
             Map<String, GHBranch> branches = repo.getBranches();
 
             getLog().info("processing... Tag:" + tag + " Release:" + releaseName);
-            makeARelease(repo, tag.toString(), releaseName, sha);
+            makeARelease(repo, tag.toString(), releaseName, sha, "true".equals(branch));
 
             getLog().info("changelog:"+changelog);
             if (TRUE.equals(changelog)) {
                 getLog().info("processing... changelog");
-                processBranches(repo, branches.values(), releaseSuffix, wiki);
+                processBranches(repo, branches.values(), branchSuffix, wiki);
             }
             getLog().info("released !!");
 

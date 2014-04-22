@@ -35,11 +35,12 @@
                     <changelog>true</changelog>   <!-- generer le changelog -->
                     <user>fanfansama</user>
                     <password>xxx</password>
-                    <!-- <releaseSuffix>REL-</releaseSuffix> suffix du tagName par defaut REL- -> REL-{tag} -->
-                     <sha>19ebf63b8ca8b6021c6dabe845349aac14046945</sha> <!--pour taguer ailleurs que sur le HEAD, par defaut HEAD -->
+                    <branch>true</branch>
+                    <!-- <branchSuffix>REL-</branchSuffix> suffix du tagName par defaut REL- -> REL-{tag} -->
+                     <!--<sha>19ebf63b8ca8b6021c6dabe845349aac14046945</sha>--> <!--pour taguer ailleurs que sur le HEAD, par defaut HEAD -->
 
-                    <repository>fanfansama/tpgit</repository>
-                    <!--  <repository>StepInfo/forfait-svp-epaye</repository>  -->
+                   <!-- <repository>fanfansama/tpgit</repository> -->
+                    <repository>StepInfo/forfait-svp-epaye</repository>
                   </configuration>
               </plugin>
           </plugins>

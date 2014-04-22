@@ -1,6 +1,7 @@
 package com.stepinfo.github;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.IterablesPlus;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.google.common.collect.IterablesPlus.getFirst;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
@@ -170,18 +172,30 @@ public class BranchHelper {
                                                           String wiki) throws IOException {
         Map<String, StringBuilder> releaseMapBuffer = newHashMap();
         PagedIterable<GHCommit> commits;
-        commits = branchSha == null ? repo.listCommits() : repo.listCommitsSinceSha(branchSha);
-        String lastTags = HEAD;
+        String lastTags;
         StringBuilder buf = new StringBuilder(SAUT_DE_LIGNE);
+        commits = branchSha == null ? repo.listCommits() : repo.listCommitsSinceSha(branchSha);
+
+        GHCommit head = getFirst(commits);
+
+        if (getReleaseName(releaseTagMap, head) != null) {
+            lastTags = getReleaseName(releaseTagMap, head);
+        } else {
+            lastTags = HEAD;
+        }
+
         for (GHCommit commit : commits) {
+            String current = getReleaseName(releaseTagMap, commit) ;
+            if(!MASTER.equals(branchName) && current == lastTags){  // si la branch est vide
+                break;
+            }
 
             buf.append(formatCommitResumeLine(repo, commit, issueLabelMap, wiki));
 
-            if (releaseTagMap.containsKey(commit.getSHA1())) {
-                String releaseName = releaseTagMap.get(commit.getSHA1()).getReleaseName();
-                loggerCommitRelease(buf, releaseName);
+            if (current != null && current != lastTags) {
+                loggerCommitRelease(buf, current);
+                lastTags = current;
                 releaseMapBuffer.put(lastTags, buf);
-                lastTags = releaseName;
                 buf = new StringBuilder(SAUT_DE_LIGNE);
                 if (!MASTER.equals(branchName)) {       // FIXME : detecter le master
                     break;
@@ -193,6 +207,11 @@ public class BranchHelper {
             loggerCommitRelease(buf, lastTags);
         }
         return releaseMapBuffer;
+    }
+
+    private static String getReleaseName(Map<String, ReleaseTag> releaseTagMap, GHCommit commit) {
+        ReleaseTag releaseTag = releaseTagMap.get(commit.getSHA1());
+        return (releaseTag == null ? null : releaseTag.getReleaseName());
     }
 
     private static void loggerCommitRelease(StringBuilder buf, String titre) {
@@ -256,7 +275,7 @@ public class BranchHelper {
             String s = m.group(0);
             labels.addAll(issueLabelMap.get(s));
             String urlIssue = performUrl(repo, wiki, s);
-            log.info(s + " -> " + urlIssue);
+          //  log.info(s + " -> " + urlIssue);
             string = string.replace(s, urlIssue);
         }
         buf.append(string);
