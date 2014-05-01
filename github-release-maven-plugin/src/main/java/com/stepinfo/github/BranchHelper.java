@@ -53,14 +53,15 @@ public class BranchHelper {
 
         cleanTargetPlugin();
 
-        Map<String, ReleaseTag> releaseTagMap = buildReleaseTagList(repo);
+        Map<String, ReleaseTag> allReleaseTagMap = buildAllReleaseTagList(repo);
+        Set<String> masterShas = extractMasterSha(repo);
         Map issueLabelMap = extractIssues(repo);
 
         for (GHBranch branch : branchList) {
             String branchName = branch.getName();
             if (branchName.equals(MASTER) || branchName.startsWith(suffixRelease) || branchName.startsWith("francois")) {     // FIXME :
                 log.debug("*********************************************** " + branch.getName() + " *******************");
-                processBranch(repo, branch, releaseTagMap, issueLabelMap, target);
+                processBranch(repo, branch, allReleaseTagMap,masterShas ,issueLabelMap, target);
             }
         }
     }
@@ -74,13 +75,35 @@ public class BranchHelper {
 
     }
 
-    private static Map<String, String> extractTags(GHRepository repo) throws IOException {
+    private static Map<String, String> extractMasterTags(GHRepository repo) throws IOException {
         Map<String, String> tagMap = newHashMap();
+        Set<String> masterShas = extractMasterSha(repo);
+        for (GHTag tag : repo.getTags()) {
+            if(masterShas.contains(tag.getCommit().getSHA1())){
+                log.info("tag on Master :" + tag.getName() + " sha:" + tag.getCommit().getSHA1());
+                tagMap.put(tag.getName(), tag.getCommit().getSHA1());
+            }
+        }
+        return tagMap;
+    }
+
+    private static Map<String, String> extractAllTags(GHRepository repo) throws IOException {
+        Map<String, String> tagMap = newHashMap();
+
         for (GHTag tag : repo.getTags()) {
             log.info("tag :" + tag.getName() + " sha:" + tag.getCommit().getSHA1());
             tagMap.put(tag.getName(), tag.getCommit().getSHA1());
         }
         return tagMap;
+    }
+
+    private static Set<String> extractMasterSha(GHRepository repo) throws IOException {
+        Set<String> masterShas = Sets.newHashSet();
+        String masterSha = repo.getBranches().get("master").getSHA1();
+        for(GHCommit commit : repo.listCommitsSinceSha(masterSha)){
+            masterShas.add(commit.getSHA1());
+        }
+        return masterShas;
     }
 
     private static List<ReleaseTag> listRelease(GHRepository repo) throws IOException {
@@ -100,9 +123,9 @@ public class BranchHelper {
         return list;
     }
 
-    private static Map<String, ReleaseTag> buildReleaseTagList(GHRepository repo) throws IOException {
+    private static Map<String, ReleaseTag> buildAllReleaseTagList(GHRepository repo) throws IOException {
         Map<String, ReleaseTag> map = newHashMap();
-        Map<String, String> tagMap = extractTags(repo);
+        Map<String, String> tagMap = extractAllTags(repo);
         List<ReleaseTag> releaseTags = listRelease(repo);
 
         for (ReleaseTag releaseTag : releaseTags) {
@@ -114,10 +137,11 @@ public class BranchHelper {
     }
 
     private static void processBranch(GHRepository repo, GHBranch branch,
-                                      Map releaseTagMap,
+                                      Map allReleaseTagMap,
+                                      Set<String> masterShas,
                                       Map issueLabelMap,
                                       String wiki) throws IOException {
-        Map<String, StringBuilder> commits = buildCommit(repo, branch.getName(), branch.getSHA1(), releaseTagMap, issueLabelMap, wiki);
+        Map<String, StringBuilder> commits = buildCommit(repo, branch.getName(), branch.getSHA1(), allReleaseTagMap, masterShas, issueLabelMap, wiki);
         writeFile(branch.getName(), commits, wiki);
     }
 
@@ -167,7 +191,8 @@ public class BranchHelper {
     }
 
     private static Map<String, StringBuilder> buildCommit(GHRepository repo, String branchName, String branchSha,
-                                                          Map<String, ReleaseTag> releaseTagMap,
+                                                          Map<String, ReleaseTag> allReleaseTagMap,
+                                                          Set<String> masterShas,
                                                           Map issueLabelMap,
                                                           String wiki) throws IOException {
         Map<String, StringBuilder> releaseMapBuffer = newHashMap();
@@ -178,14 +203,14 @@ public class BranchHelper {
 
         GHCommit head = getFirst(commits);
 
-        if (getReleaseName(releaseTagMap, head) != null) {
-            lastTags = getReleaseName(releaseTagMap, head);
+        if (getReleaseName(allReleaseTagMap, head) != null) {
+            lastTags = getReleaseName(allReleaseTagMap, head);
         } else {
             lastTags = HEAD;
         }
 
         for (GHCommit commit : commits) {
-            String current = getReleaseName(releaseTagMap, commit) ;
+            String current = getReleaseName(allReleaseTagMap, commit) ;
             if(!MASTER.equals(branchName) && current == lastTags){  // si la branch est vide
                 break;
             }
@@ -198,7 +223,8 @@ public class BranchHelper {
                 lastTags = current;
 
                 buf = new StringBuilder(SAUT_DE_LIGNE);
-                if (!MASTER.equals(branchName)) {       // FIXME : detecter le master
+
+                if (!MASTER.equals(branchName) && masterShas.contains(commit.getSHA1())) {
                     break;
                 }
             }
