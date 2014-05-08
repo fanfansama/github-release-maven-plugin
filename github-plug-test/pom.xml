@@ -32,15 +32,15 @@
                 <configuration>
                     <tag>S01</tag>
                     <wiki>MW</wiki>  <!-- MW : mediawiki, MD : markdown  -->
-                    <changelog>true</changelog>   <!-- generer le changelog -->
-                    <user>fanfansama</user>
-                    <password>xxx</password>
+                    <changelog>false</changelog>   <!-- generer le changelog -->
+                   <!-- <user>logingithub</user>
+                    <password>passwordgithub</password> -->
                     <branch>true</branch>
                     <!-- <branchSuffix>REL-</branchSuffix> suffix du tagName par defaut REL- -> REL-{tag} -->
                      <!--<sha>19ebf63b8ca8b6021c6dabe845349aac14046945</sha>--> <!--pour taguer ailleurs que sur le HEAD, par defaut HEAD -->
 
-                   <!-- <repository>fanfansama/tpgit</repository> -->
-                    <repository>StepInfo/forfait-svp-epaye</repository>
+                   <repository>fanfansama/tpmaven</repository>
+                   <!-- <repository>StepInfo/forfait-svp-epaye</repository>  -->
                   </configuration>
               </plugin>
           </plugins>

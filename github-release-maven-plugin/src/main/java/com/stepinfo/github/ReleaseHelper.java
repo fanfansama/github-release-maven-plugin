@@ -11,6 +11,7 @@ public class ReleaseHelper {
 
     public static void makeARelease(GHRepository repo,
                                     String tagName,
+                                    String branchSuffix,
                                     String releaseName,
                                     String sha,
                                     boolean makeNewBranch) throws IOException {
@@ -25,7 +26,7 @@ public class ReleaseHelper {
             for(GHTag tag : repo.getTags()){
                 if(tagName.equals(tag.getName())){
                     String ash = tag.getCommit().getSHA1();
-                    new GHRefBuilder(repo, releaseName, ash ).create();
+                    new GHRefBuilder(repo, branchSuffix+releaseName, ash ).create();
                     return;
                 }
             }

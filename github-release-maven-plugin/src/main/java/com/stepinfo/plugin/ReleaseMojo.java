@@ -64,7 +64,7 @@ public class ReleaseMojo extends AbstractConnect {
             Map<String, GHBranch> branches = repo.getBranches();
 
             getLog().info("processing... Tag:" + tag + " Release:" + releaseName);
-            makeARelease(repo, tag.toString(), releaseName, sha, "true".equals(branch));
+            makeARelease(repo, tag.toString(), branchSuffix, releaseName, sha, "true".equals(branch));
 
             getLog().info("changelog:"+changelog);
             if (TRUE.equals(changelog)) {

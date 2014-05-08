@@ -59,7 +59,7 @@ public class BranchHelper {
 
         for (GHBranch branch : branchList) {
             String branchName = branch.getName();
-            if (branchName.equals(MASTER) || branchName.startsWith(suffixRelease) || branchName.startsWith("francois")) {     // FIXME :
+            if (branchName.equals(MASTER) || branchName.startsWith(suffixRelease)) {
                 log.debug("*********************************************** " + branch.getName() + " *******************");
                 processBranch(repo, branch, allReleaseTagMap,masterShas ,issueLabelMap, target);
             }
